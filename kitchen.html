@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arvin Cooks | My Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a class="site-name" href="index.html">Arvin Cooks</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="kitchen.html" aria-current="page">My Kitchen</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="two-col">
+      <div>
+        <h2>How and What I Cook</h2>
+        <p>Most of what I know about cooking came from repetition. I made the same dishes over and over again, understanding where I went wrong until I understood why they worked, and then I started being able to cook things without thinking too much, just off intuition. These days I rarely follow a recipe, and I just use recipes for inspiration, and once I have a starting point, I adjust based on what I have and want.</p>
+        <p>The cuisines I tend to lean on include Italian, Mediterranean, Mexican, Thai, and Indian. I am ethnically Indian, so Indian cuisine is my absolute favorite to eat, but Indian dishes are extremely complex so I don't make them as frequently. I definitely tend to lean towards Italian and Mexican most often due to their simplicity of ingredients and process. Though, I will say, once you understand what flavors work together, and the pattern of making dishes, the world's your oyster.</p>
+        <p>The images on this page include some of my most memorable dishes alongside some fun things I've done in the kitchen. Below are the habits I've used to improve my cooking the most along with a chart of what I actually end up cooking most of the time.
+      </div>
+      <div class="photo-stack">
+        <figure>
+          <img src="images/steak.jpg">
+          <figcaption>Butter basted New York strips resting under shallots, garlic, and thyme.</figcaption>
+        </figure>
+        <figure>
+          <img src="images/pasta.jpg">
+          <figcaption>Penne pasta in a homemade tomato sauce with pancetta and fried eggplant.</figcaption>
+        </figure>
+        <figure>
+          <img src="images/kra pow.jpg">
+          <figcaption>Family style chicken kra pow.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h3>Kitchen habits that made me a better cook</h3>
+      <ol class="habits">
+        <li>Learn good knife skills. Cutting vegetables efficiently not only saves you so much time in the kitchen, but it also might save you from chopping off your finger.
+        <li>Season in layers, a little at each stage, instead of all at the beginning or end.</li>
+        <li>Learn how to feel for a pan's temperature and control heat. A pan that's too hot or too cold can make or break a dish, especially when it comes to meats.</li>
+        <li>Taste constantly and adjust. Practicing this will help develop your pallet and intuition for what flavors work together and which ones don't.</li>
+        <li>Try your best to use high quality ingredients. A dish's maximum potential is only as great as the quality of the ingredients.</li>
+      </ol>
+    </section>
+
+    <section class="chart-wrap">
+      <h3>What I've Made for Dinner in the Past 2 Months, by Cuisine</h3>
+      <div id="cuisine-chart"></div>
+      <p class="chart-note">Approximate number of times I cooked each cuisine over the past few months. Hover a bar to highlight it.</p>
+    </section>
+
+    <section class="contact" id="contact">
+      <h3>Contact</h3>
+      <ul>
+        <li><a href="mailto:arvin.balani@gmail.com">Email</a></li>
+        <li><a href="https://www.instagram.com/balaniarvin/?hl=en" target="_blank" rel="noopener">Instagram</a></li>        
+        <li><a href="https://www.linkedin.com/in/arvin-balani/" target="_blank" rel="noopener">LinkedIn</a></li>
+      </ul>
+    </section>
+  </main>
+
+
+  <script>
+    const data = [
+      { cuisine: "Italian", count: 17 },
+      { cuisine: "Mexican", count: 14 },
+      { cuisine: "Mediterranean", count: 11 },
+      { cuisine: "Thai", count: 8 },
+      { cuisine: "Indian", count: 6 },
+      { cuisine: "Chinese", count: 4 }
+    ];
+
+    const width = 640;
+    const barHeight = 34;
+    const margin = { top: 10, right: 50, bottom: 30, left: 100 };
+    const height = margin.top + margin.bottom + barHeight * data.length;
+
+    const svg = d3.select("#cuisine-chart")
+      .append("svg")
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("role", "img")
+      .attr("aria-label", "Bar chart of how often I cook each cuisine");
+
+    // Sort largest to smallest
+    data.sort((a, b) => d3.descending(a.count, b.count));
+
+    const x = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.count)])
+      .nice()
+      .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleBand()
+      .domain(data.map(d => d.cuisine))
+      .range([margin.top, height - margin.bottom])
+      .padding(0.25);
+
+    // Bars
+    svg.selectAll("rect")
+      .data(data)
+      .join("rect")
+      .attr("class", "bar")
+      .attr("x", x(0))
+      .attr("y", d => y(d.cuisine))
+      .attr("width", d => x(d.count) - x(0))
+      .attr("height", y.bandwidth());
+
+    // Cuisine labels on the left
+    svg.selectAll(".bar-label")
+      .data(data)
+      .join("text")
+      .attr("class", "bar-label")
+      .attr("x", margin.left - 10)
+      .attr("y", d => y(d.cuisine) + y.bandwidth() / 2)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "end")
+      .text(d => d.cuisine);
+
+    // Count labels at the end of each bar
+    svg.selectAll(".value-label")
+      .data(data)
+      .join("text")
+      .attr("class", "value-label")
+      .attr("x", d => x(d.count) + 6)
+      .attr("y", d => y(d.cuisine) + y.bandwidth() / 2)
+      .attr("dy", "0.35em")
+      .text(d => d.count);
+
+    // X axis
+    svg.append("g")
+      .attr("transform", `translate(0, ${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(5))
+      .call(g => g.select(".domain").remove());
+  </script>
+</body>
+</html>
